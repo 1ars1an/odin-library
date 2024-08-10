@@ -10,4 +10,5 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     grid-template-rows: repeat(auto-fit, minmax(200px, 1fr));
     background-color: rgba(202, 129, 69, 1);
+    height: 100vh;
 }
