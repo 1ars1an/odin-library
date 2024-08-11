@@ -9,7 +9,37 @@
 </head>
 <body>
     <div class="container">
-        
+        <form action="" class="form" id="bookForm">
+            <ul class="form-block">
+                <li class="form-input">
+                    <label for="title">Enter Title: </label>
+                    <input type="text" name="title" id="title" required>
+                </li>
+                <li class="form-input">
+                    <label for="author">Enter Author's Name: </label>
+                        <input type="text" name="author" id="author">
+                    </li>
+                <li class="form-input">
+                    <label for="genre">Enter Genre: </label>
+                    <input type="text" name="genre" id="genre">
+                </li>
+                <li class="form-input">
+                    <label for="isRead">Finished? </label>
+                    <input type="text" name="isRead" id="read" placeholder="Yes/No">
+                </li>
+                <li class="form-input">
+                    <label for="rating">Enter Rating: </label>
+                    <input type="number" placeholder="Out Of 5" 
+                    name="rating" id="rating" step="0.1" max="5" min="0">
+                </li>
+                <li class="form-input">
+                    <button class="small-btn form-btn">Submit</button>
+                </li>
+            </ul>
+        </form>
+        <footer class="add-book">
+            <button class="btn add-btn">Add Books</button>
+        </footer>
     </div>
 </body>
 </html>
