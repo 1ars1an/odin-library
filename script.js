@@ -1,104 +1,112 @@
-let myLibrary = [];
-const form = document.getElementById('bookForm');
-let formBtn = document.querySelector('.form-btn');
-const container = document.querySelector('.container');
+class Book {
+    constructor(title, author, genre, isRead, rating) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.isRead = isRead;
+        this.rating = rating;
+    }
 
-const book = {
-    title: 'The Great Gatsby',
-    author: 'F. Scott Fitzgerald',
-    genre: 'Fiction',
-    isRead: 'True',
-    rating: '4.5/5'
-};
-myLibrary.push(book);
+    toggleReadStatus() {
+        this.isRead = this.isRead === 'Yes' ? 'No' : 'Yes';
+    }
+}
 
-function createBookCard (book, id) {
-    let bookCard = document.createElement("div");
-    let bookTitle = document.createElement("h4");
-    let bookAuthor = document.createElement('span');
-    let bookGenre = document.createElement('span');
-    let bookRead = document.createElement('span');
-    let bookRating = document.createElement('span');
-    let removeBookBtn = document.createElement('button');
-    let toggleReadStatus = document.createElement('button');
+class Library {
+    constructor() {
+        this.books = [];
+        this.container = document.querySelector('.container');
+        this.form = document.getElementById('bookForm');
+        this.addBookBtn = document.querySelector('.add-btn');
+        this.init();
+    }
 
-    bookCard.classList.add("card");
-    [bookTitle, bookAuthor, bookGenre, bookRead, bookRating].forEach(el => el.classList.add("book-info"));
-    removeBookBtn.classList.add("remove-btn", "card-btn");
-    toggleReadStatus.classList.add("update-btn", "card-btn");
-    removeBookBtn.setAttribute("d-id", id);
-    toggleReadStatus.setAttribute("r-id", id);
-    
+    init() {
+        this.addInitialBook();
+        this.setupEventListeners();
+        this.displayBooks();
+    }
 
-    bookTitle.textContent = book.title || 'Unknown Title';
-    bookAuthor.textContent = `Author: ${book.author || 'Unknown Author'}`;
-    bookGenre.textContent = `Genre: ${book.genre || 'Unknown Genre'}`;
-    bookRead.textContent = `Read: ${book.isRead == 'Yes' || book.isRead == true  ? 'True' : 'False'}`;
-    bookRating.textContent = `Rating: ${book.rating || 'No Rating'}`;
-    removeBookBtn.textContent = 'Remove Book';
-    toggleReadStatus.textContent = 'Update Read Status';
+    addInitialBook() {
+        const initialBook = new Book('The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 'Yes', '4.5');
+        this.addBook(initialBook);
+    }
 
-    let tempSpan = document.createElement('span');
-    tempSpan.classList.add('btn-box');
-    tempSpan.append(removeBookBtn, toggleReadStatus);
+    setupEventListeners() {
+        this.addBookBtn.addEventListener('click', () => this.toggleForm());
+        this.form.addEventListener('submit', (event) => this.handleFormSubmit(event));
+        this.container.addEventListener('click', (e) => this.handleContainerClick(e));
+    }
 
-    bookCard.append(bookTitle, bookAuthor, bookGenre, bookRead, bookRating, tempSpan);
+    toggleForm() {
+        this.form.classList.toggle('invisible');
+    }
+
+    handleFormSubmit(event) {
+        event.preventDefault();
+        const formData = new FormData(this.form);
+        const bookData = Object.fromEntries(formData.entries());
+        const newBook = new Book(bookData.title, bookData.author, bookData.genre, bookData.isRead, bookData.rating);
+        this.addBook(newBook);
+        this.displayBooks();
+        this.form.reset();
+    }
+
+    handleContainerClick(e) {
+        if (e.target.matches('.remove-btn')) {
+            this.removeBook(e.target.getAttribute('data-id'));
+        } else if (e.target.matches('.update-btn')) {
+            this.updateReadStatus(e.target.getAttribute('data-id'));
+        }
+        this.displayBooks();
+    }
+
+    addBook(book) {
+        this.books.push(book);
+    }
+
+    removeBook(id) {
+        this.books.splice(id, 1);
+    }
+
+    updateReadStatus(id) {
+        this.books[id].toggleReadStatus();
+    }
+
+    createBookCard(book, id) {
+        let bookCard = document.createElement("div");
+        bookCard.classList.add("card");
+        bookCard.innerHTML = `
+            <h4 class="book-info">${book.title || 'Unknown Title'}</h4>
+            <span class="book-info">Author: ${book.author || 'Unknown Author'}</span>
+            <span class="book-info">Genre: ${book.genre || 'Unknown Genre'}</span>
+            <span class="book-info">Read: ${book.isRead}</span>
+            <span class="book-info">Rating: ${book.rating || 'No Rating'}/5</span>
+            <span class="btn-box">
+                <button class="remove-btn card-btn" data-id="${id}">Remove Book</button>
+                <button class="update-btn card-btn" data-id="${id}">Update Read Status</button>
+            </span>
+        `;
         return bookCard;
-}
+    }
 
-function displayBooks() {
-    clearGrid();
-    const footer = document.querySelector('.add-book');
-    myLibrary.forEach((book, index) => {
-        const newBook = createBookCard(book, index);
-        container.insertBefore(newBook, footer);
-    }) 
-}
+    displayBooks() {
+        this.clearGrid();
+        const footer = document.querySelector('.add-book');
+        this.books.forEach((book, index) => {
+            const newBook = this.createBookCard(book, index);
+            this.container.insertBefore(newBook, footer);
+        });
+    }
 
-function clearGrid() {
-    const children = Array.from(container.children);
-    for (let child of children) {
-        if (child.tagName.toLowerCase() === 'footer' || 
-        child.tagName.toLowerCase() == 'form') continue;
-        container.removeChild(child); 
+    clearGrid() {
+        const children = Array.from(this.container.children);
+        for (let child of children) {
+            if (child.classList.contains('add-book') || child.classList.contains('form')) continue;
+            this.container.removeChild(child);
+        }
     }
 }
 
-//toggle form on the sidebar
-let addBookBtn = document.querySelector('.add-btn');
-addBookBtn.addEventListener('click', () => {
-    form.classList.toggle('invisible');
-})
-
-//stop default behavior of form & create object from from data
-form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    console.log('i ran');
-    const formData = new FormData(form);
-    const bookData = Object.fromEntries(formData.entries());
-    myLibrary.push(bookData);
-    displayBooks();
-    form.reset();
-});
-
-displayBooks();
-
-container.addEventListener('click', (e) => {
-    if (e.target.matches('.remove-btn')) {
-        removeBook(e.target);
-    }
-    else if (e.target.matches('.update-btn')) {
-        updateReadStatus(e.target);
-    }
-    displayBooks();
-})
-
-function removeBook(target) {
-    id = target.getAttribute('d-id');
-    myLibrary.splice(id, 1);
-}
-
-function updateReadStatus(target) {
-    id = target.getAttribute('r-id');
-    myLibrary[id].isRead = !(myLibrary[id].isRead)
-}
+// Initialize the library
+const library = new Library();
